@@ -177,6 +177,16 @@ static NSMutableSet *_retainedPopupControllers;
     [self updateNavigationBarAniamted:NO];
 }
 
+- (void)setModalPresentationStyle:(UIModalPresentationStyle)modalPresentationStyle
+{
+    _containerViewController.modalPresentationStyle = modalPresentationStyle;
+}
+
+- (UIModalPresentationStyle)modalPresentationStyle
+{
+    return _containerViewController.modalPresentationStyle;
+}
+
 #pragma mark - Observers
 
 - (void)setupObservers

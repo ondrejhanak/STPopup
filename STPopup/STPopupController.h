@@ -74,6 +74,11 @@ typedef NS_ENUM(NSUInteger, STPopupTransitionStyle) {
 @interface STPopupController : NSObject
 
 /**
+ Container view controller modal presentation style.
+ */
+@property (nonatomic) UIModalPresentationStyle modalPresentationStyle;
+
+/**
  Style decides the final position of a popup.
  @see STPopupStyle
  */

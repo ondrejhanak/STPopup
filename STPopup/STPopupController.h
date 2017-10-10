@@ -53,7 +53,11 @@ typedef NS_ENUM(NSUInteger, STPopupStyle) {
     /**
      Popup will be horizontally centered and sticked to bottom.
      */
-    STPopupStyleBottomSheet
+    STPopupStyleBottomSheet,
+    /**
+     Popup will be horizontally centered and sticked to bottom with no extra space.
+     */
+    STPopupStyleBottomFormSheet
 };
 
 typedef NS_ENUM(NSUInteger, STPopupTransitionStyle) {

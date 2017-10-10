@@ -529,17 +529,25 @@ static NSMutableSet *_retainedPopupControllers;
     CGSize contentSizeOfTopView = [self contentSizeOfTopView];
     CGFloat containerViewWidth = contentSizeOfTopView.width;
     CGFloat containerViewHeight = contentSizeOfTopView.height + navigationBarHeight;
+    CGFloat containerViewX = (_containerViewController.view.bounds.size.width - containerViewWidth) / 2;
     CGFloat containerViewY = (_containerViewController.view.bounds.size.height - containerViewHeight) / 2;
     
     if (self.style == STPopupStyleBottomSheet) {
         containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight;
         containerViewHeight += STPopupBottomSheetExtraHeight;
+    } else if (self.style == STPopupStyleBottomFormSheet) {
+        CGFloat padding = 12.0;
+        if (UIScreen.mainScreen.bounds.size.width < 375) {
+            padding = 10.0;
+        }
+        containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight - padding;
+        containerViewX += padding;
+        containerViewWidth -= padding * 2;
     }
     
-    _containerView.frame = CGRectMake((_containerViewController.view.bounds.size.width - containerViewWidth) / 2,
-                                      containerViewY, containerViewWidth, containerViewHeight);
+    _containerView.frame = CGRectMake(containerViewX, containerViewY, containerViewWidth, containerViewHeight);
     _navigationBar.frame = CGRectMake(0, 0, containerViewWidth, preferredNavigationBarHeight);
-    _contentView.frame = CGRectMake(0, navigationBarHeight, contentSizeOfTopView.width, contentSizeOfTopView.height);
+    _contentView.frame = CGRectMake(0, navigationBarHeight, containerViewWidth, contentSizeOfTopView.height);
     
     UIViewController *topViewController = self.topViewController;
     topViewController.view.frame = _contentView.bounds;
@@ -722,7 +730,7 @@ static NSMutableSet *_retainedPopupControllers;
     }
     
     CGFloat offsetY = 0;
-    if (self.style == STPopupStyleBottomSheet) {
+    if (self.style == STPopupStyleBottomSheet || self.style == STPopupStyleBottomFormSheet) {
         offsetY = keyboardHeight;
     }
     else {
@@ -919,7 +927,7 @@ static NSMutableSet *_retainedPopupControllers;
 {
     [_containerView endEditing:YES];
     
-    if (self.style == STPopupStyleBottomSheet && offset < -STPopupBottomSheetExtraHeight) {
+    if ((self.style == STPopupStyleBottomSheet || self.style == STPopupStyleBottomFormSheet) && offset < -STPopupBottomSheetExtraHeight) {
         return;
     }
     _containerView.transform = CGAffineTransformMakeTranslation(0, offset);

@@ -520,7 +520,7 @@ static NSMutableSet *_retainedPopupControllers;
 
 #pragma mark - UI layout
 
-- (void)layoutContainerView
+- (void)layoutContainerViewWithKeyboardHeight:(CGFloat)keyboardHeight
 {
     _backgroundView.frame = _containerViewController.view.bounds;
  
@@ -536,13 +536,24 @@ static NSMutableSet *_retainedPopupControllers;
         containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight;
         containerViewHeight += STPopupBottomSheetExtraHeight;
     } else if (self.style == STPopupStyleBottomFormSheet) {
-        CGFloat padding = 12.0;
+        CGPoint padding = CGPointMake(12, 14);
         if (UIScreen.mainScreen.bounds.size.width < 375) {
-            padding = 10.0;
+            padding = CGPointMake(10, 11);
         }
-        containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight - padding;
-        containerViewX += padding;
-        containerViewWidth -= padding * 2;
+        
+        containerViewX += padding.x;
+        containerViewWidth -= padding.x * 2;
+        
+        // Adjust Y and height for keyboard
+        CGFloat availableSpace = _backgroundView.frame.size.height - keyboardHeight;
+        if (availableSpace < containerViewHeight) {
+            containerViewHeight = availableSpace - (padding.y * 2);
+            contentSizeOfTopView.height = containerViewHeight - navigationBarHeight;
+        }
+        containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight - padding.y - keyboardHeight;
+        if (@available(iOS 11, *) && keyboardHeight == 0) {
+            containerViewY -= _containerViewController.view.safeAreaInsets.bottom;
+        }
     }
     
     _containerView.frame = CGRectMake(containerViewX, containerViewY, containerViewWidth, containerViewHeight);
@@ -551,6 +562,11 @@ static NSMutableSet *_retainedPopupControllers;
     
     UIViewController *topViewController = self.topViewController;
     topViewController.view.frame = _contentView.bounds;
+}
+
+- (void)layoutContainerView
+{
+    [self layoutContainerViewWithKeyboardHeight:0];
 }
 
 - (CGSize)contentSizeOfTopView
@@ -701,7 +717,11 @@ static NSMutableSet *_retainedPopupControllers;
     [UIView setAnimationCurve:curve];
     [UIView setAnimationDuration:duration];
     
-    _containerView.transform = CGAffineTransformIdentity;
+    if (self.style == STPopupStyleBottomFormSheet) {
+        [self layoutContainerView];
+    } else {
+        _containerView.transform = CGAffineTransformIdentity;
+    }
     
     [UIView commitAnimations];
 }
@@ -757,14 +777,20 @@ static NSMutableSet *_retainedPopupControllers;
     NSTimeInterval duration = [_keyboardInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationCurve curve = [_keyboardInfo[UIKeyboardAnimationCurveUserInfoKey] intValue];
     
-    _containerView.transform = lastTransform; // Restore transform
+    if (self.style != STPopupStyleBottomFormSheet) {
+        _containerView.transform = lastTransform; // Restore transform
+    }
     
     [UIView beginAnimations:nil context:NULL];
     [UIView setAnimationBeginsFromCurrentState:YES];
     [UIView setAnimationCurve:curve];
     [UIView setAnimationDuration:duration];
     
-    _containerView.transform = CGAffineTransformMakeTranslation(0, -offsetY);
+    if (self.style == STPopupStyleBottomFormSheet) {
+        [self layoutContainerViewWithKeyboardHeight:offsetY];
+    } else {
+        _containerView.transform = CGAffineTransformMakeTranslation(0, -offsetY);
+    }
     
     [UIView commitAnimations];
 }

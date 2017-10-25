@@ -28,6 +28,11 @@ typedef NS_ENUM(NSUInteger, STPopupControllerTransitioningAction) {
  */
 @property (nonatomic, strong, readonly) UIView *containerView;
 
+/**
+ Shadow view of popup controller.
+ */
+@property (nonatomic, strong, readonly) UIView *shadowView;
+
 @end
 
 @protocol STPopupControllerTransitioning <NSObject>
@@ -131,6 +136,7 @@ typedef NS_ENUM(NSUInteger, STPopupTransitionStyle) {
  By default its background color is set to white and clipsToBounds is set to YES.
  */
 @property (nonatomic, strong, readonly) UIView *containerView;
+@property (nonatomic, strong, readonly) UIView *shadowView;
 
 /**
  *  The top view controller in the popup's controller stack.

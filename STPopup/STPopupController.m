@@ -16,11 +16,10 @@
 
 @implementation STPopupControllerTransitioningContext
 
-- (instancetype)initWithContainerView:(UIView *)containerView shadowView:(UIView *)shadowView action:(STPopupControllerTransitioningAction)action
+- (instancetype)initWithContainerView:(UIView *)containerView action:(STPopupControllerTransitioningAction)action
 {
     if (self = [super init]) {
         _containerView = containerView;
-        _shadowView = shadowView;
         _action = action;
     }
     return self;
@@ -537,10 +536,7 @@ static NSMutableSet *_retainedPopupControllers;
         containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight;
         containerViewHeight += STPopupBottomSheetExtraHeight;
     } else if (self.style == STPopupStyleBottomFormSheet) {
-        CGPoint padding = CGPointMake(12, 14);
-        if (UIScreen.mainScreen.bounds.size.width < 375) {
-            padding = CGPointMake(10, 11);
-        }
+        CGPoint padding = CGPointMake(6, 6);
         
         containerViewX += padding.x;
         containerViewWidth -= padding.x * 2;
@@ -558,7 +554,6 @@ static NSMutableSet *_retainedPopupControllers;
     }
     
     _containerView.frame = CGRectMake(containerViewX, containerViewY, containerViewWidth, containerViewHeight);
-    _shadowView.frame = _containerView.frame;
     _navigationBar.frame = CGRectMake(0, 0, containerViewWidth, preferredNavigationBarHeight);
     _contentView.frame = CGRectMake(0, navigationBarHeight, containerViewWidth, contentSizeOfTopView.height);
     
@@ -627,7 +622,7 @@ static NSMutableSet *_retainedPopupControllers;
 - (void)setupBackgroundView
 {
     UIView *backgroundView = [UIView new];
-    backgroundView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
+    backgroundView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.6];
     self.backgroundView = backgroundView;
 }
 
@@ -637,15 +632,6 @@ static NSMutableSet *_retainedPopupControllers;
     _containerView.backgroundColor = [UIColor whiteColor];
     _containerView.clipsToBounds = YES;
     [_containerViewController.view addSubview:_containerView];
-    
-    _shadowView = [UIView new];
-    _shadowView.backgroundColor = [UIColor whiteColor];
-    _shadowView.layer.shadowColor = [[UIColor blackColor] CGColor];
-    _shadowView.layer.shadowOffset = CGSizeMake(0, 3);
-    _shadowView.layer.shadowRadius = 8;
-    _shadowView.layer.shadowOpacity = 0.4;
-    _shadowView.clipsToBounds = NO;
-    [_containerViewController.view insertSubview:_shadowView belowSubview:_containerView];
     
     _contentView = [UIView new];
     [_containerView addSubview:_contentView];
@@ -732,7 +718,6 @@ static NSMutableSet *_retainedPopupControllers;
         [self layoutContainerView];
     } else {
         _containerView.transform = CGAffineTransformIdentity;
-        _shadowView.transform = CGAffineTransformIdentity;
     }
     
     [UIView commitAnimations];
@@ -791,7 +776,6 @@ static NSMutableSet *_retainedPopupControllers;
     
     if (self.style != STPopupStyleBottomFormSheet) {
         _containerView.transform = lastTransform; // Restore transform
-        _shadowView.transform = lastTransform; // Restore transform
     }
     
     [UIView beginAnimations:nil context:NULL];
@@ -803,7 +787,6 @@ static NSMutableSet *_retainedPopupControllers;
         [self layoutContainerViewWithKeyboardHeight:offsetY];
     } else {
         _containerView.transform = CGAffineTransformMakeTranslation(0, -offsetY);
-        _shadowView.transform = CGAffineTransformMakeTranslation(0, -offsetY);
     }
     
     [UIView commitAnimations];
@@ -857,7 +840,7 @@ static NSMutableSet *_retainedPopupControllers;
     if ([transitionContext viewControllerForKey:UITransitionContextToViewControllerKey] != _containerViewController) {
         action = STPopupControllerTransitioningActionDismiss;
     }
-    return [[STPopupControllerTransitioningContext alloc] initWithContainerView:_containerView shadowView:_shadowView action:action];
+    return [[STPopupControllerTransitioningContext alloc] initWithContainerView:_containerView action:action];
 }
 
 - (NSTimeInterval)transitionDuration:(id <UIViewControllerContextTransitioning>)transitionContext
@@ -916,7 +899,6 @@ static NSMutableSet *_retainedPopupControllers;
         _backgroundView.userInteractionEnabled = NO;
         _containerView.userInteractionEnabled = NO;
         _containerView.transform = CGAffineTransformIdentity;
-        _shadowView.transform = CGAffineTransformIdentity;
         
         [UIView animateWithDuration:[transitioning popupControllerTransitionDuration:context] delay:0 usingSpringWithDamping:1 initialSpringVelocity:1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             _backgroundView.alpha = lastBackgroundViewAlpha;
@@ -972,7 +954,6 @@ static NSMutableSet *_retainedPopupControllers;
         return;
     }
     _containerView.transform = CGAffineTransformMakeTranslation(0, offset);
-    _shadowView.transform = CGAffineTransformMakeTranslation(0, offset);
 }
 
 - (void)popupNavigationBar:(STPopupNavigationBar *)navigationBar touchDidEndWithOffset:(CGFloat)offset
@@ -988,7 +969,6 @@ static NSMutableSet *_retainedPopupControllers;
         [_containerView endEditing:YES];
         [UIView animateWithDuration:0.4 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
             _containerView.transform = CGAffineTransformIdentity;
-            _shadowView.transform = CGAffineTransformIdentity;
         } completion:nil];
     }
 }

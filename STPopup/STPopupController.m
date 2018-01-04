@@ -524,6 +524,7 @@ static NSMutableSet *_retainedPopupControllers;
 {
     _backgroundView.frame = _containerViewController.view.bounds;
  
+    CGFloat statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
     CGFloat preferredNavigationBarHeight = [self preferredNavigationBarHeight];
     CGFloat navigationBarHeight = _navigationBarHidden ? 0 : preferredNavigationBarHeight;
     CGSize contentSizeOfTopView = [self contentSizeOfTopView];
@@ -542,7 +543,7 @@ static NSMutableSet *_retainedPopupControllers;
         containerViewWidth -= padding.x * 2;
         
         // Adjust Y and height for keyboard
-        CGFloat availableSpace = _backgroundView.frame.size.height - keyboardHeight;
+        CGFloat availableSpace = _backgroundView.frame.size.height - keyboardHeight - statusBarHeight;
         if (availableSpace < containerViewHeight) {
             containerViewHeight = availableSpace - (padding.y * 2);
             contentSizeOfTopView.height = containerViewHeight - navigationBarHeight;
